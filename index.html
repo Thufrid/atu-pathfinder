@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATU Pathfinder - Master Interactive Map</title>
+    <title>ATU Pathfinder - Master Interactive Map & QR Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary: #002147;
@@ -42,6 +43,7 @@
             padding: 24px;
             border-radius: 16px;
             box-shadow: var(--card-shadow);
+            box-sizing: border-box;
         }
         .controls {
             display: flex;
@@ -80,7 +82,7 @@
             height: auto;
             display: block;
         }
-        /* Advanced SVG Animations and Interactivity */
+        /* Interactive SVG Classes */
         .building {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -140,6 +142,43 @@
             margin-right: 8px;
             border: 1px solid rgba(0,0,0,0.15);
         }
+        /* QR Section Styling */
+        .qr-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 3px dashed #cbd5e1;
+        }
+        .qr-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .qr-input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .qr-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .qr-btn:hover {
+            opacity: 0.9;
+        }
         footer {
             margin: 25px 0;
             font-size: 0.8rem;
@@ -152,7 +191,6 @@
     <header>ACCRA TECHNICAL UNIVERSITY - MASTER WAYFINDING SYSTEM</header>
 
     <div class="container">
-        <!-- Beginner-Friendly Dynamic Path Selector Controls -->
         <div class="controls">
             <button class="btn" onclick="toggleRoute('all')">Show All Paths</button>
             <button class="btn" data-path="blue" onclick="toggleRoute('blue')">Admin & Assembly Route</button>
@@ -161,54 +199,35 @@
         </div>
 
         <div class="map-wrapper">
-            <!-- Precise Vector Translation of the Blueprint -->
             <svg viewBox="0 0 1000 1100" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <!-- Shadow Filter for 3D depth -->
                     <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
                         <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.3" flood-color="#000000"/>
                     </filter>
                 </defs>
 
-                <!-- Base Map Canvas background -->
                 <rect x="0" y="0" width="1000" height="1100" fill="#fafbfc"/>
 
-                <!-- ================= PRIMARY HIGHWAYS & ROADS ================= -->
-                <!-- Liberia Road (Top Highway) -->
                 <path d="M 50 120 C 350 135, 650 125, 950 115" fill="none" stroke="#94a3b8" stroke-width="24" stroke-linecap="round"/>
                 <text x="480" y="98" font-size="14" fill="#475569" font-weight="bold" letter-spacing="1">LIBERIA ROAD</text>
 
-                <!-- Barnes Ave (Right Boundary Highway) -->
                 <path d="M 780 120 L 820 180 C 780 320, 830 500, 740 600" fill="none" stroke="#cbd5e1" stroke-width="24" stroke-linecap="round"/>
                 <text x="825" y="320" font-size="14" fill="#475569" font-weight="bold" transform="rotate(78 825 320)">BARNES AVE</text>
 
-                <!-- Amu West Road (Diagonal Left & Tail Boundary) -->
                 <path d="M 140 130 L 290 400 L 460 580 L 460 1060" fill="none" stroke="#cbd5e1" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>
                 <text x="240" y="470" font-size="13" fill="#475569" font-weight="bold" transform="rotate(62 240 470)">AMU WEST</text>
 
-                <!-- NB Brimah Link -->
                 <path d="M 290 400 L 460 580" fill="none" stroke="#e2e8f0" stroke-width="18"/>
                 <text x="325" y="480" font-size="11" fill="#475569" font-weight="bold" transform="rotate(46 325 480)">NB BRIMAH LK</text>
 
-                <!-- ================= DETAILED INNER WALKWAYS & LANES ================= -->
-                <!-- Main central looping access driveway -->
                 <path d="M 170 290 L 580 290 C 620 290, 620 210, 560 210 L 260 210 C 200 210, 160 230, 170 290" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linejoin="round"/>
                 <path d="M 430 290 L 430 650" fill="none" stroke="#e2e8f0" stroke-width="16"/>
                 <path d="M 540 290 L 540 680" fill="none" stroke="#e2e8f0" stroke-width="16"/>
 
-                <!-- ================= CORE NAVIGATION OVERLAYS (THE PATHS) ================= -->
-                <!-- Blue Path Overlay (To Admin, Great Hall, Assembly Area) -->
                 <path id="path-blue" class="path-line" d="M 620 210 L 430 210 L 430 330 L 650 330" fill="none" stroke="#007BFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                
-                <!-- Yellow Path Overlay (To N-Block & Central Libraries) -->
                 <path id="path-yellow" class="path-line" d="M 620 210 L 540 210 L 540 410 L 430 410 L 430 480 L 480 480" fill="none" stroke="#FFC107" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                
-                <!-- Green Path Overlay (Direct path through southern corridor) -->
                 <path id="path-green" class="path-line" d="M 620 210 L 540 210 L 540 680 L 540 820" fill="none" stroke="#28A745" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 
-                <!-- ================= ARCHITECTURAL BUILDINGS (EXACT LAYOUT) ================= -->
-
-                <!-- North/Liberia Road Bungalows (Left to Right) -->
                 <rect class="building" data-name="Bungalow A" x="120" y="150" width="45" height="35" fill="#f43f5e" rx="3" filter="url(#shadow)"/>
                 <rect class="building" data-name="Bungalow B" x="190" y="150" width="45" height="35" fill="#ec4899" rx="3" filter="url(#shadow)"/>
                 <rect class="building" data-name="Staff Quarters A" x="260" y="145" width="60" height="40" fill="#d946ef" rx="3" filter="url(#shadow)"/>
@@ -217,61 +236,34 @@
                 <rect class="building" data-name="Bungalow D" x="490" y="140" width="45" height="35" fill="#6366f1" rx="3" filter="url(#shadow)"/>
                 <rect class="building" data-name="Vice Chancellor's Lodge" x="560" y="140" width="75" height="45" fill="#0284c7" rx="4" filter="url(#shadow)"/>
 
-                <!-- Central Left Side (Workshops and Labs) -->
-                <!-- Auto Workshop -->
                 <rect class="building" data-name="Auto Workshop" x="160" y="320" width="80" height="40" fill="#b45309" rx="3" filter="url(#shadow)"/>
-                <!-- Machine Shop -->
                 <rect class="building" data-name="Machine Shop" x="260" y="320" width="80" height="40" fill="#d97706" rx="3" filter="url(#shadow)"/>
-                <!-- Building & Civil Tech Block -->
                 <rect class="building" data-name="Building Tech & Civil Engineering Lab" x="360" y="320" width="125" height="45" fill="#059669" rx="4" filter="url(#shadow)"/>
-                <!-- Electrical Workshop -->
                 <rect class="building" data-name="Electrical Engineering Workshop" x="360" y="380" width="125" height="45" fill="#4d7c0f" rx="4" filter="url(#shadow)"/>
-                <!-- Concrete Court / Pavilion -->
                 <rect class="building" data-name="Campus Pavilion" x="180" y="380" width="65" height="45" fill="#64748b" rx="2" filter="url(#shadow)"/>
-                <!-- Science Block -->
                 <rect class="building" data-name="Science Block" x="360" y="440" width="125" height="50" fill="#4f46e5" rx="4" filter="url(#shadow)"/>
-                <!-- ICT Block -->
                 <rect class="building" data-name="I.C.T. Block" x="340" y="510" width="145" height="50" fill="#0891b2" rx="4" filter="url(#shadow)"/>
 
-                <!-- Central Right Side (Admin and Lecture Halls) -->
-                <!-- Security Post (Main entrance area along Barnes) -->
                 <circle cx="620" cy="210" r="14" fill="#0f172a"/>
-                
-                <!-- Administration Block -->
                 <rect class="building" data-name="Administration Block" x="650" y="240" width="115" height="50" fill="#1e3a8a" rx="4" filter="url(#shadow)"/>
-                
-                <!-- Great Hall -->
                 <rect class="building" data-name="Great Hall" x="520" y="270" width="115" height="50" fill="#e11d48" rx="4" filter="url(#shadow)"/>
-                
-                <!-- Assembly Hall -->
                 <rect class="building" data-name="Assembly Hall" x="520" y="335" width="115" height="55" fill="#ea580c" rx="4" filter="url(#shadow)"/>
-                
-                <!-- N-Block (Major Horizontal Academic Block) -->
                 <rect class="building" data-name="N-Block Lecture Halls" x="440" y="410" width="195" height="45" fill="#0d9488" rx="5" filter="url(#shadow)"/>
-                
-                <!-- B / Library Block -->
                 <rect class="building" data-name="B / Library Block" x="470" y="475" width="165" height="55" fill="#6366f1" rx="4" filter="url(#shadow)"/>
 
-                <!-- Southern Extension (Residency & Recreation) -->
-                <!-- Canteen -->
                 <rect class="building" data-name="University Canteen" x="460" y="580" width="90" height="45" fill="#854d0e" rx="4" filter="url(#shadow)"/>
-
-                <!-- New Block Hostel (Exact Cruciform Blueprint Geometry) -->
+                
                 <path class="building" data-name="New Block Hostel (Six-Storey Residential Complex)" 
                       d="M 450 690 L 495 690 L 495 650 L 530 650 L 530 690 L 575 690 L 575 725 L 530 725 L 530 785 L 495 785 L 495 725 L 450 725 Z" 
                       fill="#312e81" stroke="#1e1b4b" stroke-width="2" filter="url(#shadow)"/>
 
-                <!-- Sports Court (Exact Boundary Court Layout) -->
                 <g class="building" data-name="Multipurpose Sports Complex">
                     <rect x="470" y="850" width="130" height="170" fill="#16a34a" rx="8" stroke="#15803d" stroke-width="3" filter="url(#shadow)"/>
-                    <!-- Court markings -->
                     <rect x="480" y="860" width="110" height="150" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" />
                     <line x1="480" y1="935" x2="590" y2="935" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
                     <circle cx="535" cy="935" r="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
                 </g>
 
-                <!-- ================= TEXT LABELS (MAP LABELS) ================= -->
-                <!-- Dynamic text overlays positioned next to components -->
                 <text x="175" y="344" font-size="8.5" fill="white" font-weight="bold" pointer-events="none">Auto Lab</text>
                 <text x="270" y="344" font-size="8.5" fill="white" font-weight="bold" pointer-events="none">Machine Shop</text>
                 <text x="375" y="347" font-size="8.5" fill="white" font-weight="bold" pointer-events="none">Civil & Bldg Tech</text>
@@ -293,12 +285,10 @@
             </svg>
         </div>
 
-        <!-- Dynamic Live Information Output Area -->
         <div class="info-panel" id="info-panel">
             💡 Tap/Hover over any structure on the map to display its information. Use buttons to highlight directions.
         </div>
 
-        <!-- Comprehensive Color Legend -->
         <div class="legend-grid">
             <div class="legend-item"><span class="color-dot" style="background-color: #1e3a8a;"></span> Administration Block</div>
             <div class="legend-item"><span class="color-dot" style="background-color: #0284c7;"></span> VC Residence</div>
@@ -316,17 +306,41 @@
             <div class="legend-item"><span class="color-dot" style="background-color: #854d0e;"></span> University Canteen</div>
             <div class="legend-item"><span class="color-dot" style="background-color: #16a34a;"></span> Sports Complex</div>
         </div>
+
+        <div class="qr-section">
+            <h3 style="margin-top: 0; color: var(--primary); text-align: center; font-size: 1.1rem; font-weight: bold;">ATU PATHFINDER — OFFLINE QR GENERATOR</h3>
+            <p style="font-size: 0.8rem; color: #64748b; text-align: center; margin-bottom: 20px;">
+                Generate high-correction QR signs for campus landmarks. This generator functions fully offline.
+            </p>
+            
+            <div class="qr-inputs">
+                <input type="url" id="qr-text" 
+                       value="" 
+                       class="qr-input-field"
+                       placeholder="Paste target landmark URL here...">
+                
+                <button onclick="generateLiveQR()" class="qr-btn">
+                    Generate Map QR Code
+                </button>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <div id="qrcode" style="display: inline-block; padding: 12px; background: white; border: 1px solid #cbd5e1; border-radius: 12px;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>ATU Pathfinder System • Group 25</footer>
 
     <script>
-        // Interactive highlight function
+        // Set dynamic default URL in QR generator input field based on the loaded location
+        document.getElementById('qr-text').value = window.location.href;
+
+        // Path highlighting logic
         function toggleRoute(color) {
             const paths = ['blue', 'yellow', 'green'];
             const buttons = document.querySelectorAll('.btn');
             
-            // Update Active button style
             buttons.forEach(btn => {
                 if (btn.getAttribute('data-path') === color) {
                     btn.classList.add('active');
@@ -335,7 +349,6 @@
                 }
             });
 
-            // Adjust opacity for paths
             paths.forEach(p => {
                 const element = document.getElementById('path-' + p);
                 if (color === 'all') {
@@ -360,7 +373,7 @@
             }
         }
 
-        // Setup hover action for structures
+        // Map interaction logic
         const buildings = document.querySelectorAll('.building');
         const infoPanel = document.getElementById('info-panel');
 
@@ -377,13 +390,36 @@
             });
         });
 
-        // ================= SERVICE WORKER REGISTRATION =================
-        // Bulletproof registration using relative paths for subfolders like GitHub Pages
+        // Built-in QR Code Generation Logic
+        function generateLiveQR() {
+            const qrContainer = document.getElementById("qrcode");
+            const textValue = document.getElementById("qr-text").value.trim();
+            qrContainer.innerHTML = ""; // Wipe previous QR Code
+            
+            if (!textValue) {
+                alert("Please enter a valid URL target.");
+                return;
+            }
+
+            new QRCode(qrContainer, {
+                text: textValue,
+                width: 180,
+                height: 180,
+                colorDark: "#002147", // Match primary theme
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H // High Error Correction (survives dirt/weathering)
+            });
+        }
+
+        // Generate initial default QR on page load
+        window.addEventListener('load', generateLiveQR);
+
+        // ================= BULLETPROOF SERVICE WORKER REGISTRATION =================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then((reg) => {
-                        console.log('Service Worker registered successfully! Scope:', reg.scope);
+                        console.log('Service Worker successfully registered! Scope:', reg.scope);
                     })
                     .catch((err) => {
                         console.error('Service Worker registration failed:', err);
