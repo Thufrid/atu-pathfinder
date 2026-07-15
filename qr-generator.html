@@ -3,124 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATU Pathfinder - QR Code Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ATU Pathfinder - QR Code Generator Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #002147;
+            --bg-light: #f8fafc;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: var(--primary);
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .container {
+            width: 95%;
+            max-width: 550px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: #475569;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .btn-back:hover {
+            background-color: #e2e8f0;
+        }
+        .qr-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .qr-input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        .qr-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .qr-btn:hover {
+            opacity: 0.9;
+        }
+        .download-btn {
+            background-color: #28A745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            margin-top: 15px;
+            display: none; /* Hidden until QR is generated */
+            width: 100%;
+        }
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+        #qrcode-container {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+        }
+        #qrcode {
+            padding: 15px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        footer {
+            margin-top: auto;
+            margin-bottom: 25px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-between font-sans">
+<body>
 
-    <header class="w-full bg-[#002147] text-white text-center py-6 shadow-md">
-        <h1 class="text-xl md:text-2xl font-bold tracking-wide">ATU PATHFINDER — QR GENERATOR</h1>
-        <p class="text-xs text-slate-300 mt-1">Generate High-Correction QR Codes for Signage & Junctions</p>
-    </header>
+    <header>ATU PATHFINDER - QR PORTAL</header>
 
-    <main class="w-11/12 max-w-lg bg-white rounded-2xl shadow-xl p-8 my-8 border border-slate-100">
-        <div class="space-y-6">
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-                <p class="text-xs text-blue-800 leading-relaxed">
-                    <strong>💡 Wayfinding Tip:</strong> Use the URLs from your GitHub Pages deployment. This generator uses <strong>High Error Correction (Level H)</strong>, meaning the printed signs will still scan perfectly even if they get slightly scratched or weathered outdoors.
-                </p>
-            </div>
+    <div class="container">
+        <a href="index.html" class="btn-back">⬅️ Back to Master Map</a>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Target URL / Link</label>
-                    <input type="url" id="qr-text" 
-                           value="https://your-username.github.io/atu-pathfinder/" 
-                           class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#002147] text-sm text-slate-800"
-                           placeholder="Paste your GitHub Pages URL here...">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Dark Color (Dots)</label>
-                        <input type="color" id="color-dark" value="#002147" 
-                               class="w-full h-10 p-1 bg-white rounded-lg border border-slate-300 cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Background</label>
-                        <input type="color" id="color-light" value="#ffffff" 
-                               class="w-full h-10 p-1 bg-white rounded-lg border border-slate-300 cursor-pointer">
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="generateQRCode()" 
-                    class="w-full bg-[#002147] hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200 uppercase tracking-wider text-sm">
+        <h3 style="margin: 0; color: var(--primary); font-size: 1.3rem;">OFFLINE-READY QR GENERATOR</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">
+            Generate and download high-correction QR signs for physical campus installation.
+        </p>
+        
+        <div class="qr-inputs">
+            <input type="url" id="qr-text" 
+                   class="qr-input-field"
+                   placeholder="Paste landmark URL here...">
+            
+            <button onclick="generateLiveQR()" class="qr-btn">
                 Generate QR Code
             </button>
-
-            <div class="flex flex-col items-center justify-center pt-6 border-t border-slate-100">
-                <div id="qrcode" class="p-4 bg-white border border-slate-200 rounded-xl shadow-inner inline-block"></div>
-                <p class="text-xs text-slate-400 mt-3 italic" id="scannable-url">Points to: https://your-username.github.io/atu-pathfinder/</p>
+            
+            <div id="qrcode-container">
+                <div id="qrcode"></div>
             </div>
 
-            <button id="download-btn" onclick="downloadQR()" 
-                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200 uppercase tracking-wider text-sm hidden">
-                📥 Download High-Res PNG
+            <button id="download-btn" onclick="downloadQRCode()" class="download-btn">
+                💾 Download High-Res QR (PNG)
             </button>
         </div>
-    </main>
+    </div>
 
-    <footer class="w-full text-center py-6 text-xs text-slate-400 border-t border-slate-200 bg-white">
-        ATU Pathfinder Project • Group 25
-    </footer>
+    <footer>ATU Pathfinder System • Group 25</footer>
 
     <script>
-        let qrObj = null;
+        // Set default value as the base URL of the deployment
+        const baseDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        document.getElementById('qr-text').value = baseDir + "index.html";
 
-        function generateQRCode() {
+        function generateLiveQR() {
             const qrContainer = document.getElementById("qrcode");
             const textValue = document.getElementById("qr-text").value.trim();
-            const darkColor = document.getElementById("color-dark").value;
-            const lightColor = document.getElementById("color-light").value;
-            const statusLabel = document.getElementById("scannable-url");
             const downloadBtn = document.getElementById("download-btn");
-
+            
+            qrContainer.innerHTML = ""; // Clear old code
+            
             if (!textValue) {
-                alert("Please enter a valid URL!");
+                alert("Please enter a valid URL.");
+                downloadBtn.style.display = "none";
                 return;
             }
 
-            // Clear previous container output
-            qrContainer.innerHTML = "";
-
-            // Create new dynamic QR Code
-            qrObj = new QRCode(qrContainer, {
+            // Create new QR Code using canvas engine
+            new QRCode(qrContainer, {
                 text: textValue,
                 width: 256,
                 height: 256,
-                colorDark: darkColor,
-                colorLight: lightColor,
-                correctLevel: QRCode.CorrectLevel.H // Highest robustness setting
+                colorDark: "#002147",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H // High error correction
             });
 
-            // Update visible link under the QR display
-            statusLabel.textContent = `Points to: ${textValue}`;
-            
-            // Show the download button
+            // Show download button once generated
             setTimeout(() => {
-                downloadBtn.classList.remove("hidden");
+                downloadBtn.style.display = "block";
             }, 100);
         }
 
-        function downloadQR() {
-            const qrImg = document.querySelector("#qrcode img");
-            if (!qrImg) {
-                alert("Please generate a QR code first!");
+        // Handle Downloading of the Canvas/Image Code safely
+        function downloadQRCode() {
+            const qrDiv = document.getElementById("qrcode");
+            
+            // Try to find the image generated or the fallback canvas
+            const img = qrDiv.querySelector("img");
+            const canvas = qrDiv.querySelector("canvas");
+            
+            let downloadUrl = "";
+            
+            if (img && img.src) {
+                downloadUrl = img.src;
+            } else if (canvas) {
+                downloadUrl = canvas.toDataURL("image/png");
+            } else {
+                alert("Could not extract image source for download.");
                 return;
             }
 
             const downloadLink = document.createElement("a");
-            downloadLink.href = qrImg.src;
-            downloadLink.download = "atu_pathfinder_qrcode.png";
+            downloadLink.href = downloadUrl;
+            downloadLink.download = "atu-pathfinder-qr.png"; // Default download filename
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
 
-        // Initialize with default template on open
-        window.onload = generateQRCode;
+        // Generate initial default on load
+        window.addEventListener('load', generateLiveQR);
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('Service Worker Registered!', reg.scope))
+                    .catch((err) => console.error('Registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
