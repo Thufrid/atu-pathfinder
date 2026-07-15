@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATU Pathfinder - QR Code Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center justify-between font-sans">
+
+    <header class="w-full bg-[#002147] text-white text-center py-6 shadow-md">
+        <h1 class="text-xl md:text-2xl font-bold tracking-wide">ATU PATHFINDER — QR GENERATOR</h1>
+        <p class="text-xs text-slate-300 mt-1">Generate High-Correction QR Codes for Signage & Junctions</p>
+    </header>
+
+    <main class="w-11/12 max-w-lg bg-white rounded-2xl shadow-xl p-8 my-8 border border-slate-100">
+        <div class="space-y-6">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                <p class="text-xs text-blue-800 leading-relaxed">
+                    <strong>💡 Wayfinding Tip:</strong> Use the URLs from your GitHub Pages deployment. This generator uses <strong>High Error Correction (Level H)</strong>, meaning the printed signs will still scan perfectly even if they get slightly scratched or weathered outdoors.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Target URL / Link</label>
+                    <input type="url" id="qr-text" 
+                           value="https://your-username.github.io/atu-pathfinder/" 
+                           class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#002147] text-sm text-slate-800"
+                           placeholder="Paste your GitHub Pages URL here...">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Dark Color (Dots)</label>
+                        <input type="color" id="color-dark" value="#002147" 
+                               class="w-full h-10 p-1 bg-white rounded-lg border border-slate-300 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Background</label>
+                        <input type="color" id="color-light" value="#ffffff" 
+                               class="w-full h-10 p-1 bg-white rounded-lg border border-slate-300 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="generateQRCode()" 
+                    class="w-full bg-[#002147] hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200 uppercase tracking-wider text-sm">
+                Generate QR Code
+            </button>
+
+            <div class="flex flex-col items-center justify-center pt-6 border-t border-slate-100">
+                <div id="qrcode" class="p-4 bg-white border border-slate-200 rounded-xl shadow-inner inline-block"></div>
+                <p class="text-xs text-slate-400 mt-3 italic" id="scannable-url">Points to: https://your-username.github.io/atu-pathfinder/</p>
+            </div>
+
+            <button id="download-btn" onclick="downloadQR()" 
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200 uppercase tracking-wider text-sm hidden">
+                📥 Download High-Res PNG
+            </button>
+        </div>
+    </main>
+
+    <footer class="w-full text-center py-6 text-xs text-slate-400 border-t border-slate-200 bg-white">
+        ATU Pathfinder Project • Group 25
+    </footer>
+
+    <script>
+        let qrObj = null;
+
+        function generateQRCode() {
+            const qrContainer = document.getElementById("qrcode");
+            const textValue = document.getElementById("qr-text").value.trim();
+            const darkColor = document.getElementById("color-dark").value;
+            const lightColor = document.getElementById("color-light").value;
+            const statusLabel = document.getElementById("scannable-url");
+            const downloadBtn = document.getElementById("download-btn");
+
+            if (!textValue) {
+                alert("Please enter a valid URL!");
+                return;
+            }
+
+            // Clear previous container output
+            qrContainer.innerHTML = "";
+
+            // Create new dynamic QR Code
+            qrObj = new QRCode(qrContainer, {
+                text: textValue,
+                width: 256,
+                height: 256,
+                colorDark: darkColor,
+                colorLight: lightColor,
+                correctLevel: QRCode.CorrectLevel.H // Highest robustness setting
+            });
+
+            // Update visible link under the QR display
+            statusLabel.textContent = `Points to: ${textValue}`;
+            
+            // Show the download button
+            setTimeout(() => {
+                downloadBtn.classList.remove("hidden");
+            }, 100);
+        }
+
+        function downloadQR() {
+            const qrImg = document.querySelector("#qrcode img");
+            if (!qrImg) {
+                alert("Please generate a QR code first!");
+                return;
+            }
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = qrImg.src;
+            downloadLink.download = "atu_pathfinder_qrcode.png";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Initialize with default template on open
+        window.onload = generateQRCode;
+    </script>
+</body>
+</html>
