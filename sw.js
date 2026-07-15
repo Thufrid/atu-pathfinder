@@ -1,17 +1,18 @@
-// ATU Pathfinder Service Worker - Bulletproof Offline v1.3
-const CACHE_NAME = 'atu-pathfinder-v3';
+// ATU Pathfinder Service Worker - Complete Multi-Page Offline v1.4
+const CACHE_NAME = 'atu-pathfinder-v4';
 const ASSETS_TO_CACHE = [
-    'index.html',
     './',
-    './index.html'
+    'index.html',
+    './index.html',
+    'qr-generator.html',
+    './qr-generator.html'
 ];
 
-// Install Event: Force cache the essential files
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[Service Worker] Force caching assets');
+                console.log('[Service Worker] Caching all offline web pages...');
                 return Promise.all(
                     ASSETS_TO_CACHE.map(url => {
                         return fetch(url)
@@ -19,7 +20,7 @@ self.addEventListener('install', (event) => {
                                 if (!response.ok) throw new Error(`Request failed for ${url}`);
                                 return cache.put(url, response);
                             })
-                            .catch(err => console.warn(`[Service Worker] Skipping optional asset: ${url}`, err));
+                            .catch(err => console.warn(`[Service Worker] Skipping: ${url}`, err));
                     })
                 );
             })
@@ -27,13 +28,12 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Activate Event: Clear out every single old cache
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cache) => {
-                    console.log('[Service Worker] Deleting old cache:', cache);
+                    console.log('[Service Worker] Flushing old cache storage:', cache);
                     return caches.delete(cache);
                 })
             );
@@ -41,22 +41,16 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch Event: Cache-First Strategy with Network Fallback (Perfect for Offline Apps)
 self.addEventListener('fetch', (event) => {
-    // Only handle standard GET requests
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
-                // If found in cache, serve it immediately (instant offline load)
                 return cachedResponse;
             }
-
-            // If not in cache, go to network
             return fetch(event.request)
                 .then((networkResponse) => {
-                    // Dynamically add successfully fetched assets to cache
                     if (networkResponse && networkResponse.status === 200) {
                         const responseToCache = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => {
@@ -66,8 +60,11 @@ self.addEventListener('fetch', (event) => {
                     return networkResponse;
                 })
                 .catch(() => {
-                    // If network fails completely (OFFLINE fallback)
+                    // Fail-safe router for offline subpage navigation
                     if (event.request.mode === 'navigate') {
+                        if (event.request.url.includes('qr-generator.html')) {
+                            return caches.match('qr-generator.html') || caches.match('./qr-generator.html');
+                        }
                         return caches.match('index.html') || caches.match('./index.html');
                     }
                 });
